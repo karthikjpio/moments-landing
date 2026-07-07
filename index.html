@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MoCa reads the 'happy birthday' messages you already sent and turns them into a private birthday calendar. Runs entirely on your Mac. No account. Nothing uploaded.">
+  <meta property="og:title" content="MoCa, the birthdays are already in your texts">
+  <meta property="og:description" content="You wished them on the day. MoCa reads that date back out and never lets you forget again. Runs entirely on your Mac.">
+  <title>MoCa, your friends' birthdays are hiding in your own texts</title>
+  <style>
+    :root{
+      --bg:#050404; --panel:#100f0e; --hero:#241b16;
+      --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.15);
+      --ink:#f8f4ef; --muted:#a89e97; --soft:#6f6660;
+      --orange:#ef8d5c;
+      --shadow:0 30px 90px rgba(0,0,0,.5); --radius:14px; --max:1040px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;color:var(--ink);
+      background:
+        radial-gradient(circle at 0% -5%, rgba(239,141,92,.13), transparent 30rem),
+        var(--bg);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      line-height:1.5;
+    }
+    a{color:inherit}
+    .wrap{width:min(var(--max),calc(100% - 32px));margin:0 auto}
+    h1,h2,h3,p{margin-top:0}
+
+    .top{padding:22px 0}
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:11px;text-decoration:none}
+    .brand-mark{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;
+      background:var(--orange);color:#19100d;font-weight:900;font-size:19px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.42)}
+    .brand b{font-size:18px;font-weight:900;letter-spacing:-.01em}
+    .brand small{display:block;color:var(--soft);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-top:1px}
+    .nav-cta{min-height:38px;display:inline-flex;align-items:center;padding:0 16px;border-radius:999px;
+      background:var(--orange);color:#1e120c;font-weight:900;text-decoration:none;font-size:14px}
+    .nav-cta:hover{filter:brightness(1.08)}
+
+    .hero{padding:56px 0 48px}
+    .hero-grid{display:grid;grid-template-columns:1fr 400px;gap:48px;align-items:center}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;padding:6px 12px;border-radius:999px;
+      border:1px solid var(--line-2);background:rgba(255,255,255,.04);color:var(--orange);font-size:12px;font-weight:800;letter-spacing:.05em}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 4px rgba(239,141,92,.22)}
+    h1{font-size:clamp(38px,5.4vw,58px);line-height:1.03;font-weight:950;letter-spacing:-.02em;margin-bottom:20px}
+    h1 .hl{color:var(--orange)}
+    .sub{max-width:480px;color:#d4ccc6;font-size:clamp(17px,1.6vw,19px);margin-bottom:26px}
+    .sub b{color:var(--ink)}
+    .form{display:flex;gap:8px;flex-wrap:wrap;max-width:460px}
+    .form input{flex:1 1 210px;min-height:52px;border:1px solid var(--line-2);border-radius:11px;padding:0 16px;
+      background:#f9f0e7;color:#1a1512;font:inherit;font-size:16px;outline:none}
+    .form input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(239,141,92,.25)}
+    .form button{min-height:52px;padding:0 22px;border:0;border-radius:11px;background:var(--orange);color:#1e120c;
+      font:inherit;font-weight:900;font-size:16px;cursor:pointer;transition:transform .15s,background .15s,box-shadow .15s}
+    .form button:hover{transform:translateY(-1px);filter:brightness(1.08);box-shadow:0 14px 30px rgba(239,141,92,.28)}
+    .trust{display:flex;flex-wrap:wrap;gap:12px 20px;margin-top:18px;color:var(--muted);font-size:13.5px;font-weight:600}
+    .trust span{display:inline-flex;align-items:center;gap:7px}
+    .trust svg{flex:0 0 auto}
+    .form-note{min-height:20px;margin:12px 0 0;color:#b8aca4;font-size:13px}
+    .form-note strong{color:var(--orange)}
+
+    .mock{border:1px solid var(--line-2);border-radius:18px;overflow:hidden;background:linear-gradient(160deg,#141210,#0c0a09);box-shadow:var(--shadow)}
+    .mock-bar{display:flex;align-items:center;gap:7px;padding:12px 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
+    .mock-bar i{width:11px;height:11px;border-radius:50%;background:#3a3733}
+    .mock-bar i:nth-child(1){background:#ff5f57}.mock-bar i:nth-child(2){background:#febc2e}.mock-bar i:nth-child(3){background:#28c840}
+    .mock-bar span{margin-left:auto;color:var(--soft);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+    .mock-body{padding:16px}
+    .mock-hd{color:var(--orange);font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+    .mock-hero{border:1px solid var(--line);border-radius:12px;padding:15px;background:linear-gradient(135deg,var(--hero),#1a1512);margin-bottom:12px}
+    .mock-hero h4{margin:0 0 10px;font-size:19px;font-weight:900}
+    .mock-tone{border-radius:8px;padding:9px 11px;background:rgba(0,0,0,.3);color:#cfc6c0;font-size:13px}
+    .row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-top:1px solid var(--line)}
+    .av{flex:0 0 auto;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:17px;background:var(--orange)}
+    .row .who{flex:1;min-width:0}
+    .row .who b{display:block;font-size:14px}
+    .row .who small{color:var(--muted);font-size:12px}
+    .row .pill{flex:0 0 auto;padding:6px 12px;border-radius:8px;background:var(--orange);color:#1e120c;font-size:12px;font-weight:900}
+
+    section{padding:64px 0}
+    .kicker{color:var(--orange);font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+    h2{font-size:clamp(28px,3.4vw,40px);line-height:1.1;font-weight:950;letter-spacing:-.02em;margin-bottom:0;max-width:600px}
+    .lead{max-width:560px;color:var(--muted);font-size:18px;margin:14px 0 0}
+
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:34px}
+    .step{border:1px solid var(--line);border-radius:var(--radius);padding:22px;background:var(--panel)}
+    .step .n{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--orange);color:#1e120c;font-weight:900;margin-bottom:16px}
+    .step h3{font-size:16px;margin:0;line-height:1.35}
+
+    .privacy{border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+      background:radial-gradient(circle at 90% 8%, rgba(239,141,92,.08), transparent 26rem), #0a0908}
+    .p-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+    .p-list{display:grid;gap:14px;margin:0;padding:0;list-style:none}
+    .p-list li{display:flex;gap:12px;color:#d4ccc6}
+    .check{flex:0 0 auto;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:var(--orange);color:#1e120c;font-weight:900;font-size:13px}
+    .p-list b{color:var(--ink)}
+
+    details{border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;background:var(--panel);margin-bottom:10px}
+    summary{cursor:pointer;font-weight:800;list-style:none}
+    summary::-webkit-details-marker{display:none}
+    summary::after{content:"+";float:right;color:var(--orange);font-weight:900}
+    details[open] summary::after{content:"\2013"}
+    details p{margin:12px 0 0;color:var(--muted)}
+
+    .final{text-align:center;background:radial-gradient(circle at 50% 0%, rgba(239,141,92,.15), transparent 60%)}
+    .final h2{margin:0 auto 14px}
+    .final .lead{margin:0 auto 26px}
+    .final .form{margin:0 auto;justify-content:center}
+    .footer{border-top:1px solid var(--line);padding:26px 0;color:var(--soft);font-size:13px}
+    .footer-row{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+    @media(max-width:900px){
+      .hero-grid,.p-grid{grid-template-columns:1fr}
+      .hero-grid{gap:36px}
+      .mock{order:-1}
+      .steps{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:560px){
+      .steps{grid-template-columns:1fr}
+      .nav small{display:none}
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap nav">
+      <a class="brand" href="#top">
+        <span class="brand-mark">🐣</span>
+        <span><b>MoCa</b><small>Moments Calendar</small></span>
+      </a>
+      <a class="nav-cta" href="#join">Get early access</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <span class="eyebrow"><span class="dot"></span> Early access, Mac app</span>
+          <h1>Your friends' birthdays are <span class="hl">already in your texts.</span></h1>
+          <p class="sub">You wished them on the day. MoCa reads that date back out of your own chat history and builds a birthday calendar. <b>No typing. No account. Nothing leaves your Mac.</b></p>
+
+          <form class="form" data-waitlist-form>
+            <label for="email" style="position:absolute;left:-9999px">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+            <button type="submit">Get early access</button>
+          </form>
+          <p class="form-note" data-form-note>Founding testers get in first. No spam.</p>
+
+          <div class="trust">
+            <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ef8d5c" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> 100% offline</span>
+            <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ef8d5c" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> No sign-up</span>
+            <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ef8d5c" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg> Zero data entry</span>
+          </div>
+        </div>
+
+        <div class="mock" aria-hidden="true">
+          <div class="mock-bar"><i></i><i></i><i></i><span>Coming up</span></div>
+          <div class="mock-body">
+            <div class="mock-hd">Next up · in 2 days</div>
+            <div class="mock-hero">
+              <h4>🎈 Emma's birthday</h4>
+              <div class="mock-tone">Last message tone: "Happy birthday to youuu Emma 🎈"</div>
+            </div>
+            <div class="row"><span class="av">🐸</span><span class="who"><b>Jack Sullivan</b><small>birthday in 6 days · Jul 12</small></span><span class="pill">Draft a wish</span></div>
+            <div class="row"><span class="av">🐯</span><span class="who"><b>Finn Kowalski</b><small>birthday in 9 days · Jul 15</small></span><span class="pill">Draft a wish</span></div>
+            <div class="row"><span class="av">🦄</span><span class="who"><b>Lukas Hoffmann</b><small>anniversary in 2 weeks · Jul 21</small></span><span class="pill">Draft a wish</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="kicker">How it works</div>
+        <h2>Four steps, then it runs itself.</h2>
+        <div class="steps">
+          <article class="step"><div class="n">1</div><h3>Scans your WhatsApp and Instagram history</h3></article>
+          <article class="step"><div class="n">2</div><h3>Review and confirm what it found</h3></article>
+          <article class="step"><div class="n">3</div><h3>Your list, notifications and drafts</h3></article>
+          <article class="step"><div class="n">4</div><h3>Calendar sync to Apple / Google Calendar</h3></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="privacy">
+      <div class="wrap p-grid">
+        <div>
+          <div class="kicker">Privacy first</div>
+          <h2>Your chat history stays yours.</h2>
+          <p class="lead">The source material is your most personal messages, so there is no cloud to leak. MoCa runs on your Mac and never phones home.</p>
+        </div>
+        <ul class="p-list">
+          <li><span class="check">✓</span><div><b>No network calls.</b> The only server is a local one that draws the window.</div></li>
+          <li><span class="check">✓</span><div><b>Read-only.</b> Your chat databases are copied read-only, never modified.</div></li>
+          <li><span class="check">✓</span><div><b>No account, ever.</b> Nothing to sign up for, nothing uploaded.</div></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="kicker">FAQ</div>
+        <h2 style="margin-bottom:28px">Quick answers.</h2>
+        <details open><summary>How does MoCa find a birthday without me entering it?</summary><p>It finds the "happy birthday" wishes you sent and uses the date you sent them.</p></details>
+        <details><summary>Does any of my chat data leave my device?</summary><p>No. Everything runs on your Mac with no network calls, no account, and nothing uploaded.</p></details>
+        <details><summary>Which platforms are supported?</summary><p>For now you can connect WhatsApp and Instagram, with more apps coming soon. It syncs to Apple and Google Calendar.</p></details>
+        <details><summary>Will it send messages for me?</summary><p>Never automatically. It reminds you and drafts a starting point. You decide what to send.</p></details>
+      </div>
+    </section>
+
+    <section class="final" id="join">
+      <div class="wrap">
+        <h2>Be the friend who always remembers.</h2>
+        <p class="lead">Get early access to MoCa and stop letting birthdays slip past.</p>
+        <form class="form" data-waitlist-form>
+          <label for="email2" style="position:absolute;left:-9999px">Email</label>
+          <input id="email2" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+          <button type="submit">Get early access</button>
+        </form>
+        <p class="form-note" data-form-note>Mac app · 100% offline · no account.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-row">
+      <b>MoCa, Moments Calendar</b>
+      <a href="mailto:hello@example.com">Contact</a>
+    </div>
+  </footer>
+
+  <script>
+    const waitlistEndpoint = "https://formspree.io/f/xzdlwvdn";
+    const validEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+    async function save(email){
+      const k="moca_waitlist", list=JSON.parse(localStorage.getItem(k)||"[]");
+      if(!list.includes(email)){ list.push(email); localStorage.setItem(k,JSON.stringify(list)); }
+      if(!waitlistEndpoint) return {ok:true};
+      const r = await fetch(waitlistEndpoint,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({email,source:"moca-landing"})});
+      return {ok:r.ok};
+    }
+    document.querySelectorAll("[data-waitlist-form]").forEach(form=>{
+      const input = form.querySelector("input[type=email]");
+      const note = form.parentElement.querySelector("[data-form-note]");
+      form.addEventListener("submit", async e=>{
+        e.preventDefault();
+        const email = input.value.trim().toLowerCase();
+        if(!validEmail(email)){ note.innerHTML="<strong>Enter a valid email.</strong> We need somewhere to send the invite."; input.focus(); return; }
+        const btn = form.querySelector("button"), label = btn.textContent;
+        btn.textContent="Joining..."; btn.disabled=true;
+        try{
+          const {ok}=await save(email); if(!ok) throw 0;
+          window.location.href = "thanks.html";
+        }catch(_){ note.innerHTML="<strong>Didn't connect.</strong> Try again in a moment."; btn.textContent=label; btn.disabled=false; }
+      });
+    });
+  </script>
+</body>
+</html>
